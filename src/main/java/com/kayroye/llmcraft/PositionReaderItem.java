@@ -1,4 +1,4 @@
-package com.kayroye;
+package com.kayroye.llmcraft;
 
 import net.minecraft.world.item.Item;
 import net.minecraft.world.InteractionResult;

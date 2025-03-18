@@ -1,7 +1,7 @@
 package com.kayroye.llmcraft;
 
 import com.mojang.logging.LogUtils;
-import com.kayroye.PositionReaderItem;
+
 import net.minecraft.world.item.Item;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.eventbus.api.IEventBus;
