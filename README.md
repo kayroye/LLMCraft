@@ -105,7 +105,7 @@ Key benefits:
 
 ## 📄 License
 
-This project is licensed under All Rights Reserved.
+This project is licensed under the BSD-3 Clause License.
 
 ## Acknowledgments
 
