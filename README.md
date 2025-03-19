@@ -5,11 +5,11 @@
 
 A Minecraft Forge mod that allows interaction with open-source large language models directly from within the game. With LLMCraft, players can get real-time AI assistance based on their in-game context and environment.
 
-[Bug Report](https://github.com/kayroye/llmcraft/issues)
+[Bug Report](https://github.com/kayroye/LLMCraft/issues)
 
-![GitHub stars](https://img.shields.io/github/stars/kayroye/llmcraft)
-![GitHub issues](https://img.shields.io/github/issues/kayroye/llmcraft)
-![GitHub license](https://img.shields.io/github/license/kayroye/llmcraft)
+![GitHub stars](https://img.shields.io/github/stars/kayroye/LLMCraft)
+![GitHub issues](https://img.shields.io/github/issues/kayroye/LLMCraft)
+![GitHub license](https://img.shields.io/github/license/kayroye/LLMCraft)
 ![Version](https://img.shields.io/badge/version-1.0.0-blue)
 
 </div>
@@ -64,7 +64,7 @@ A Minecraft Forge mod that allows interaction with open-source large language mo
 ### Installation
 
 1. Install [Minecraft Forge](https://files.minecraftforge.net/) for version 1.21.4
-2. Download the latest LLMCraft mod JAR from the [Releases page](https://github.com/kayroye/llmcraft/releases)
+2. Download the latest LLMCraft mod JAR from the [Releases page](https://github.com/kayroye/LLMCraft/releases)
 3. Place the JAR file in your Minecraft `mods` folder
 4. Install [Ollama](https://ollama.ai/) on your computer
 5. Pull the default model:
