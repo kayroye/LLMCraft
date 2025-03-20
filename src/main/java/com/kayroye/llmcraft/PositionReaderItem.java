@@ -14,7 +14,10 @@ import java.io.OutputStream;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.stream.Collectors;
+
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class PositionReaderItem extends Item {
     public PositionReaderItem(Properties properties) {
@@ -24,6 +27,7 @@ public class PositionReaderItem extends Item {
     @Override
     public InteractionResult use(Level level, Player player, InteractionHand hand) {
         if(level.isClientSide) {
+            // Retriving player data
             // Get the player co-ordinates
             double playerX = player.getX();
             double playerY = player.getY();
@@ -36,8 +40,23 @@ public class PositionReaderItem extends Item {
             String biome = level.getBiome(playerPos).toString();
             // Get the time of day
             String timeOfDay = String.valueOf(level.getDayTime() % 24000);
+            // Get the player's current inventory items (main inventory, non empty item spaces)
+            String playerItems = player.getInventory().items.stream()
+                .filter(item -> !item.isEmpty())
+                .map(item -> item.getCount() + " " + item.getItem().toString())
+                .collect(Collectors.joining(", "));
+            // Get the player's current health and hunger
+            float playerHealth = player.getHealth();
+            //int playerHunger = player.getFoodData().getFoodLevel();
+            
+            // Retriving environment data
+            // Get the nearby entitites within 25 blocks of the player
+            String nearbyMobs = level.getEntities(player, player.getBoundingBox().inflate(25)).toString();
+            // Get the nearby blocks
+            BlockState blocks = level.getBlockState(playerPos);
+            System.out.println(blocks.toString());
             // Format the message
-            String message = String.format("Position: X: %.1f, Y: %.1f, Z: %.1f in Dimension: %s, Biome: %s, Time of Day: %s", playerX, playerY, playerZ, dimension, biome, timeOfDay);
+            String message = String.format("Position: X: %.1f, Y: %.1f, Z: %.1f\nDimension: %s\nBiome: %s\nTime of Day: %s\nPlayer Inventory: %s\nPlayer Health: %.1f\nPlayer Hunger Level (Higher is better): 20\nNearby Mobs/Entities: %s", playerX, playerY, playerZ, dimension, biome, timeOfDay, playerItems, playerHealth, nearbyMobs);
             
             // Run HTTP request in a separate thread to avoid blocking the game
             new Thread(() -> {
@@ -49,10 +68,10 @@ public class PositionReaderItem extends Item {
                     });
                     
                     String model = "qwen2.5:32b";
-                    String prompt = "The player's position is " + message +
+                    String prompt = "The player's current context is " + message +
                         ".";
                     
-                    String systemPrompt = "You are an AI assistant in Minecraft. Consider the X, Y, Z coordinates and the dimension. Suggest a safe and logical next action " +
+                    String systemPrompt = "You are an AI assistant in Minecraft. The player has just requested your assistance on what to do next via an in-game item. Consider the given player context in the next given message. Suggest a safe and logical next action" +
                         ". Avoid nonsensical actions and be concise. Your message will be displayed to the player in chat.";
                     
                     // Set up the connection to the Ollama API (default port is 11434)
@@ -108,9 +127,29 @@ public class PositionReaderItem extends Item {
                                     if (startIdx > 0 && endIdx > startIdx) {
                                         String llmResponse = responseBody.substring(startIdx + 1, endIdx);
                                         
-                                        Minecraft.getInstance().gui.getChat().addMessage(
-                                            Component.literal("LLM Suggestion: " + llmResponse)
-                                        );
+                                        // First unescape any JSON escaped newlines
+                                        llmResponse = llmResponse.replace("\\\\n", "\n").replace("\\n", "\n");
+                                        
+                                        // Split the response by line breaks and send each part as a separate message
+                                        String[] responseParts = llmResponse.split("\n");
+                                        boolean isFirstMessage = true;
+                                        
+                                        for (String part : responseParts) {
+                                            // Skip empty lines
+                                            if (!part.trim().isEmpty()) {
+                                                if (isFirstMessage) {
+                                                    // Add a prefix to the first message
+                                                    Minecraft.getInstance().gui.getChat().addMessage(
+                                                        Component.literal("LLM Suggestion: " + part)
+                                                    );
+                                                    isFirstMessage = false;
+                                                } else {
+                                                    Minecraft.getInstance().gui.getChat().addMessage(
+                                                        Component.literal(part)
+                                                    );
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             } catch (Exception e) {
